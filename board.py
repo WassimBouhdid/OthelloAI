@@ -111,7 +111,6 @@ class Board:
                     return False
         return True
 
-
     # Compute the winner by counting the number of black and white pawns
     # The winner is the one that hase the most pawns on the board
     def compute_winner(self):

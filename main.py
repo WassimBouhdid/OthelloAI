@@ -62,23 +62,31 @@ if __name__ == '__main__':
                 # and we change the color of the enemies pawn that are sandwiched between this pawn and other pawns
                 # of the player
 
-                if player:
+                if not player:
                     if boardgame.is_valid_move(coord_x, coord_y):
-
                         boardgame.set_pawns(player, coord_x, coord_y)
+                        draw_board(boardgame, DIMENSION, HEIGHT, WIDTH, screen)
 
-                        # checks if the game is finish by checking the number of empty squares left
-                        if boardgame.is_game_finished():
-                            print(boardgame.compute_winner())
-                            running = False
-                        # draw_board(boardgame, DIMENSION, HEIGHT, WIDTH, screen)
                         player = 1 - player  # change the player's turn
-                    elif not boardgame.get_possible_moves():
-                        player = 1 - player
-                else:
-                    ai_move = minimax.best_move(boardgame)
-                    boardgame.set_pawns(player, ai_move[0], ai_move[1])
-                    player = 1 - player
+                    draw_board(boardgame, DIMENSION, HEIGHT, WIDTH, screen)
+                    # if boardgame.is_game_finished():
+                    #     print(boardgame.compute_winner())
+                    #     running = False
+            boardgame.computer_possible_moves(player)
+
+            if not boardgame.get_possible_moves():
+                print("pas de moves pour le joueur", player)
+                player = 1 - player
+
+            if bool(player) and not boardgame.is_game_finished():
+                ai_move = minimax.best_move(boardgame)
+                boardgame.set_pawns(player, ai_move[0], ai_move[1])
+                player = 1 - player
+
+            # checks if the game is finish by checking the number of empty squares left
+            if boardgame.is_game_finished():
+                print(boardgame.compute_winner())
+                running = False
 
         # colors the background in green
         screen.fill("green")

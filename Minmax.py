@@ -42,7 +42,6 @@ class MiniMax:
         max_score = -math.inf
         move = None
         for i in board.get_possible_moves():
-
             copy_board = copy.deepcopy(board)
             board.set_pawns(1, i[0], i[1])
             score = self.minimax(board, 0, False)
