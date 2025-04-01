@@ -30,6 +30,7 @@ class Board:
         self.coord_possible_change_color = set()
         self.black_pawn = 0
         self.white_pawn = 0
+        self.no_moves_player = False
 
     # Get all th possible movesof a player by detecting a streak
     # A streak is a succession of 1 or more enemy pawns that finishes with a None
@@ -128,6 +129,12 @@ class Board:
 
     def set_board(self, board):
         self.game_board = board
+
+    def set_no_moves_player1(self, value):
+        self.no_moves_player = value
+
+    def get_no_moves_player1(self):
+        return self.no_moves_player
 
     # Print the table board in console
     def print_table(self):

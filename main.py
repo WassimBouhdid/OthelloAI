@@ -40,18 +40,21 @@ if __name__ == '__main__':
 
     clock = pygame.time.Clock()
     running = True
-
     player = 0
     boardgame = board.Board()
     boardgame.computer_possible_moves(player)
     minimax = Minmax.MiniMax()
+
+    player_moves = {"white": [], "black": []}
+
+    player1_has_moves = True
+    player2_has_moves = True
 
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
             if event.type == pygame.MOUSEBUTTONDOWN:  # Wait for a mouse click event
-                boardgame.computer_possible_moves(player)
 
                 # Get the coordinates of where the player has clicked
                 coord_x = int(pygame.mouse.get_pos()[0] // (WIDTH / DIMENSION))
@@ -66,27 +69,33 @@ if __name__ == '__main__':
                     if boardgame.is_valid_move(coord_x, coord_y):
                         boardgame.set_pawns(player, coord_x, coord_y)
                         draw_board(boardgame, DIMENSION, HEIGHT, WIDTH, screen)
-
                         player = 1 - player  # change the player's turn
+                    if boardgame.is_game_finished():
+                        running = False
+                        continue
                     draw_board(boardgame, DIMENSION, HEIGHT, WIDTH, screen)
-                    # if boardgame.is_game_finished():
-                    #     print(boardgame.compute_winner())
-                    #     running = False
+
             boardgame.computer_possible_moves(player)
+            if bool(player):
+                player_moves["white"] = boardgame.get_possible_moves()
+            else:
+                player_moves["black"] = boardgame.get_possible_moves()
+
+            print(player_moves["white"])
+            # print(player_moves["black"])
+            if player_moves["black"] == [] and player_moves["white"] == []:
+                print(boardgame.compute_winner())
+                running = False
+                continue
 
             if not boardgame.get_possible_moves():
                 print("pas de moves pour le joueur", player)
                 player = 1 - player
 
-            if bool(player) and not boardgame.is_game_finished():
+            if bool(player):
                 ai_move = minimax.best_move(boardgame)
                 boardgame.set_pawns(player, ai_move[0], ai_move[1])
                 player = 1 - player
-
-            # checks if the game is finish by checking the number of empty squares left
-            if boardgame.is_game_finished():
-                print(boardgame.compute_winner())
-                running = False
 
         # colors the background in green
         screen.fill("green")
