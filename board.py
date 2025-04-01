@@ -34,7 +34,8 @@ class Board:
 
     # Get all th possible movesof a player by detecting a streak
     # A streak is a succession of 1 or more enemy pawns that finishes with a None
-    def computer_possible_moves(self, player):
+    def compute_possible_moves(self, player):
+        # print(player)
         self.possible_moves = set()
         # We loop through all the possible position of the board
         for x in range(len(self.game_board)):
@@ -105,24 +106,31 @@ class Board:
         return self.possible_moves
 
     # Return True if there are no empty squares to play left
-    def is_game_finished(self):
-        for x in range(len(self.game_board[0])):
-            for y in range(len(self.game_board)):
-                if self.game_board[x][y] == None:
-                    return False
-        return True
+    def is_game_finished(self, player):
+        self.compute_possible_moves(player)
+
+        if not self.get_possible_moves():
+            player = 1 - player  # Change de joueur
+            # Vérifie si l'autre joueur est aussi bloqué
+
+            self.compute_possible_moves(player)
+            if not self.get_possible_moves():
+                return True
+            player = 1 - player
+        return False
 
     # Compute the winner by counting the number of black and white pawns
     # The winner is the one that hase the most pawns on the board
     def compute_winner(self):
+        self.white_pawn = 0
+        self.black_pawn = 0
         for l in self.game_board:
             for c in l:
                 if c == 1:
                     self.white_pawn += 1
                 elif c == 0:
-                    self.black_pawn += 0
-
-        return "black player" if self.black_pawn > self.white_pawn else "white player"
+                    self.black_pawn += 1
+        return 0 if self.black_pawn > self.white_pawn else 1 if self.black_pawn < self.white_pawn else None
 
     def get_board(self):
         return self.game_board
