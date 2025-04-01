@@ -76,26 +76,19 @@ if __name__ == '__main__':
                     draw_board(boardgame, DIMENSION, HEIGHT, WIDTH, screen)
 
             boardgame.computer_possible_moves(player)
-            if bool(player):
-                player_moves["white"] = boardgame.get_possible_moves()
-            else:
-                player_moves["black"] = boardgame.get_possible_moves()
-
-            print(player_moves["white"])
-            # print(player_moves["black"])
-            if player_moves["black"] == [] and player_moves["white"] == []:
-                print(boardgame.compute_winner())
-                running = False
-                continue
 
             if not boardgame.get_possible_moves():
                 print("pas de moves pour le joueur", player)
                 player = 1 - player
-
-            if bool(player):
-                ai_move = minimax.best_move(boardgame)
-                boardgame.set_pawns(player, ai_move[0], ai_move[1])
-                player = 1 - player
+            try:
+                if bool(player):
+                    ai_move = minimax.best_move(boardgame)
+                    boardgame.set_pawns(player, ai_move[0], ai_move[1])
+                    player = 1 - player
+            except:
+                print(boardgame.compute_winner())
+                running = False
+                continue
 
         # colors the background in green
         screen.fill("green")
