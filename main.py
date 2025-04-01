@@ -100,27 +100,3 @@ if __name__ == '__main__':
 
         clock.tick(60)
 
-# if not boardgame.get_possible_moves():
-#     print("Pas de moves pour le joueur", player)
-#     player = 1 - player  # Change de joueur
-#
-#     # Vérifie si l'autre joueur est aussi bloqué
-#     boardgame.computer_possible_moves(player)
-#     if not boardgame.get_possible_moves():
-#         print("Aucun joueur ne peut jouer. Fin de la partie !")
-#         print("Le gagnant est :", boardgame.compute_winner())
-#         running = False
-#         continue  # On sort de la boucle
-#     player = 1 - player  # Change de joueur
-
-# if bool(player):
-#     player_moves["white"] = boardgame.get_possible_moves()
-# else:
-#     player_moves["black"] = boardgame.get_possible_moves()
-
-# print(player_moves["white"])
-# # print(player_moves["black"])
-# if player_moves["black"] == [] and player_moves["white"] == []:
-#     print(boardgame.compute_winner())
-#     running = False
-#     continue
