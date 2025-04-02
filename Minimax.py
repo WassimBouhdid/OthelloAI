@@ -10,7 +10,7 @@ class MiniMax:
         self.count = 0
 
     def minimax(self, board, depth, is_maximizing, player):
-
+        # print(depth)
         self.count += 1
 
         if board.is_game_finished(player):
@@ -21,10 +21,11 @@ class MiniMax:
 
         board.compute_possible_moves(is_maximizing)
         best_score = -math.inf if is_maximizing else math.inf
+        # print(board.get_possible_moves())
         for i in board.get_possible_moves():
             copy_board = copy.deepcopy(board)
             board.set_pawns(is_maximizing, i[0], i[1])
-            score = self.minimax(board, depth + 1, 1 - is_maximizing,player)
+            score = self.minimax(board, depth + 1, 1 - is_maximizing, player)
             board.set_board(copy_board.get_board())
             best_score = max(best_score, score)
         return best_score
@@ -41,5 +42,5 @@ class MiniMax:
             if score > max_score:
                 max_score = score
                 move = (i[0], i[1])
-        # print(self.count)
+        print(self.count)
         return move

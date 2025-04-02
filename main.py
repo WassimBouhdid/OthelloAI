@@ -2,7 +2,7 @@ import time
 
 import pygame
 
-import Minmax
+import Minimax
 import board
 
 
@@ -43,7 +43,7 @@ if __name__ == '__main__':
     player = 0
     boardgame = board.Board()
     boardgame.compute_possible_moves(player)
-    minimax = Minmax.MiniMax()
+    minimax = Minimax.MiniMax()
 
     while running:
         for event in pygame.event.get():
