@@ -17,15 +17,14 @@ def draw_board(board, dimension, height, width, screen):
 
     # draw a black pawn where there is a 0 in the gameBoard
     # draw a white pawn where there is a 1 in the gameBoard
-    for y in range(len(board.get_board())):
-        for x in range(len(board.get_board()[0])):
-
+    for x in range(len(board.get_board())):
+        for y in range(len(board.get_board()[0])):
             if board.get_board()[x][y] == 0:
-                pygame.draw.circle(screen, "black", [((width / dimension) / 2) + (width / dimension) * x,
-                                                     ((width / dimension) / 2) + (width / dimension) * y], 25)
+                pygame.draw.circle(screen, "black", [((width / dimension) / 2) + (width / dimension) * y,
+                                                     ((width / dimension) / 2) + (width / dimension) * x], 25)
             elif board.get_board()[x][y] == 1:
-                pygame.draw.circle(screen, "white", [((width / dimension) / 2) + (width / dimension) * x,
-                                                     ((width / dimension) / 2) + (width / dimension) * y], 25)
+                pygame.draw.circle(screen, "white", [((width / dimension) / 2) + (width / dimension) * y,
+                                                     ((width / dimension) / 2) + (width / dimension) * x], 25)
 
 
 if __name__ == '__main__':
@@ -52,14 +51,14 @@ if __name__ == '__main__':
             if event.type == pygame.MOUSEBUTTONDOWN:  # Wait for a mouse click event
 
                 # Get the coordinates of where the player has clicked
-                coord_x = int(pygame.mouse.get_pos()[0] // (WIDTH / DIMENSION))
-                coord_y = int(pygame.mouse.get_pos()[1] // (HEIGHT / DIMENSION))
+                coord_x = int(pygame.mouse.get_pos()[1] // (WIDTH / DIMENSION))
+                coord_y = int(pygame.mouse.get_pos()[0] // (HEIGHT / DIMENSION))
 
                 # If the coordinate is one of the valid move
                 # We put a pawn of the player's color on that coordinate
                 # and we change the color of the enemies pawn that are sandwiched between this pawn and other pawns
                 # of the player
-
+                print(coord_x,coord_y)
                 if not player:
                     if boardgame.is_valid_move(coord_x, coord_y):
                         boardgame.set_pawns(player, coord_x, coord_y)

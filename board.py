@@ -17,7 +17,6 @@ class Board:
 
         self.game_board = [
             [None, None, None, None],
-
             [None, 1, 0, None],
             [None, 0, 1, None],
             [None, None, None, None],
@@ -35,7 +34,6 @@ class Board:
     # Get all th possible movesof a player by detecting a streak
     # A streak is a succession of 1 or more enemy pawns that finishes with a None
     def compute_possible_moves(self, player):
-        # print(player)
         self.possible_moves = set()
         # We loop through all the possible position of the board
         for x in range(len(self.game_board)):
@@ -130,7 +128,7 @@ class Board:
                     self.white_pawn += 1
                 elif c == 0:
                     self.black_pawn += 1
-        return 0 if self.black_pawn > self.white_pawn else 1 if self.black_pawn < self.white_pawn else None
+        return 0 if self.black_pawn >= self.white_pawn else 1
 
     def get_board(self):
         return self.game_board
