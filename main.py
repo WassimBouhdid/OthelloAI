@@ -1,10 +1,7 @@
 import time
-
 import pygame
-
 import Minimax
 import board
-
 
 def draw_board(board, dimension, height, width, screen):
     # Draws the black line in order to create all the squares of the board
@@ -58,7 +55,6 @@ if __name__ == '__main__':
                 # We put a pawn of the player's color on that coordinate
                 # and we change the color of the enemies pawn that are sandwiched between this pawn and other pawns
                 # of the player
-                print(coord_x,coord_y)
                 if not player:
                     if boardgame.is_valid_move(coord_x, coord_y):
                         boardgame.set_pawns(player, coord_x, coord_y)
