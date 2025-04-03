@@ -44,7 +44,7 @@ class MiniMax:
         for i in board.get_possible_moves():
             copy_board = copy.deepcopy(board)
             board.set_pawns(1, i[0], i[1])
-            score = self.minimax(board, 0, 1- player)
+            score = self.minimax(board, 0, 1 - player)
             board.set_board(copy_board.get_board())
             print(score)
             if score > max_score:
@@ -52,4 +52,3 @@ class MiniMax:
                 move = (i[0], i[1])
         # print(self.count)
         return move
-
