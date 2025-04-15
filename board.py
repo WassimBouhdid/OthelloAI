@@ -15,6 +15,24 @@ class Board:
         #     [None, None, None, None, None, None, None, None],
         # ]
 
+        # self.weighted_board = [
+        #     [100, -20, 10, 5, 5, 10, -20, 100],
+        #     [-20, -50, -2, -2, -2, -2, -50, -20],
+        #     [10, -2, -1, -1, -1, -1, -2, 10],
+        #     [5, -2, -1, -1, -1, -1, -2, 5],
+        #     [5, -2, -1, -1, -1, -1, -2, 5],
+        #     [10, -2, -1, -1, -1, -1, -2, 10],
+        #     [-20, -50, -2, -2, -2, -2, -50, -20],
+        #     [100, -20, 10, 5, 5, 10, -20, 100]
+        # ]
+
+        self.weighted_board = [
+            [100,  10, 10,  100],
+            [10, -1, -1,  10],
+            [10,  -1, -1, 10],
+            [100, 10,  10,  100]
+        ]
+
         self.game_board = [
             [None, None, None, None],
             [None, 1, 0, None],
@@ -133,6 +151,9 @@ class Board:
     def get_board(self):
         return self.game_board
 
+    def get_weighted_board(self):
+        return self.weighted_board
+
     def set_board(self, board):
         self.game_board = board
 
@@ -148,3 +169,4 @@ class Board:
             for c in range(len(self.game_board)):
                 print("-" if self.game_board[c][l] is None else self.game_board[c][l], end="")
             print()
+

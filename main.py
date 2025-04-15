@@ -1,7 +1,9 @@
+import math
 import time
 import pygame
 import Minimax
 import board
+
 
 def draw_board(board, dimension, height, width, screen):
     # Draws the black line in order to create all the squares of the board
@@ -64,7 +66,7 @@ if __name__ == '__main__':
 
             boardgame.compute_possible_moves(player)
             if bool(player) and boardgame.get_possible_moves():
-                ai_move = minimax.best_move(boardgame, player)
+                ai_move = minimax.minimax(-math.inf, math.inf, boardgame, 2, player)
                 boardgame.set_pawns(player, ai_move[0], ai_move[1])
                 player = 1 - player
             elif bool(player):
@@ -94,4 +96,3 @@ if __name__ == '__main__':
         pygame.display.flip()
 
         clock.tick(60)
-
