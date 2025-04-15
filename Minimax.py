@@ -15,7 +15,6 @@ class MiniMax:
 
         # print(self.count)
         # self.count +=1
-
         board.compute_possible_moves(is_maximizing)
 
         if depth == 0:
@@ -34,8 +33,8 @@ class MiniMax:
 
                 copy_board = copy.deepcopy(board)
                 copy_board.set_pawns(is_maximizing, i[0], i[1])
-                score = self.minimax(board, alpha, beta, depth - 1, 1 - is_maximizing)
-                best_score = max(best_score, score) if is_maximizing else min(best_score, score)
+                score = self.minimax(alpha, beta, board, depth - 1, 1 - is_maximizing)
+                # best_score = max(best_score, score) if is_maximizing else min(best_score, score)
 
                 if is_maximizing:
                     if score > best_score:
@@ -53,9 +52,9 @@ class MiniMax:
                 # max_score = score
                 # move = (i[0], i[1])
         else:
-            best_score = self.minimax(board, alpha, beta, depth - 1, 1 - is_maximizing)
+            best_move, best_score = self.minimax(alpha, beta, board, depth - 1, 1 - is_maximizing)
 
-        return best_move
+        return best_move, best_score
 
     # def best_move(self, board, player):
     #     board.compute_possible_moves(player)
@@ -73,4 +72,9 @@ class MiniMax:
     #     return move
 
     def board_evaluation(self, board, is_maximizing):
-        pass
+        score = 0
+        for x in range(len(board.get_board())):
+            for y in range(len(board.get_board()[0])):
+                if board.get_board()[x][y] == is_maximizing:
+                    score += board.get_weighted_board()[x][y]
+        return score
