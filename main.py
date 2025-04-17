@@ -58,6 +58,7 @@ if __name__ == '__main__':
                 # and we change the color of the enemies pawn that are sandwiched between this pawn and other pawns
                 # of the player
                 if not player:
+                    print(boardgame.get_possible_moves())
                     if boardgame.is_valid_move(coord_x, coord_y):
                         boardgame.set_pawns(player, coord_x, coord_y)
                         draw_board(boardgame, DIMENSION, HEIGHT, WIDTH, screen)
@@ -66,7 +67,8 @@ if __name__ == '__main__':
 
             boardgame.compute_possible_moves(player)
             if bool(player) and boardgame.get_possible_moves():
-                ai_move = minimax.minimax(-math.inf, math.inf, boardgame, 2, player)
+                ai_move = minimax.minimax(-math.inf, math.inf, boardgame, 12, player)[0]
+                print(ai_move)
                 boardgame.set_pawns(player, ai_move[0], ai_move[1])
                 player = 1 - player
             elif bool(player):

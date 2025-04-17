@@ -11,19 +11,17 @@ class MiniMax:
 
     def minimax(self, alpha, beta, board, depth, is_maximizing):
 
-        # print(depth)
-
         # print(self.count)
         # self.count +=1
         board.compute_possible_moves(is_maximizing)
 
         if depth == 0:
-            return self.board_evaluation(board, is_maximizing)
+            return None, self.board_evaluation(board, is_maximizing)
         elif board.is_game_finished(is_maximizing):
             if board.compute_winner():
-                return math.inf
+                return None, math.inf
             else:
-                return -math.inf
+                return None, -math.inf
 
         best_score = -math.inf if is_maximizing else math.inf
         best_move = []
@@ -33,9 +31,8 @@ class MiniMax:
 
                 copy_board = copy.deepcopy(board)
                 copy_board.set_pawns(is_maximizing, i[0], i[1])
-                score = self.minimax(alpha, beta, board, depth - 1, 1 - is_maximizing)
+                score = self.minimax(alpha, beta, copy_board, depth - 1, 1 - is_maximizing)[1]
                 # best_score = max(best_score, score) if is_maximizing else min(best_score, score)
-
                 if is_maximizing:
                     if score > best_score:
                         best_score = score
@@ -49,27 +46,10 @@ class MiniMax:
 
                 if alpha >= beta:
                     break
-                # max_score = score
-                # move = (i[0], i[1])
         else:
             best_move, best_score = self.minimax(alpha, beta, board, depth - 1, 1 - is_maximizing)
 
         return best_move, best_score
-
-    # def best_move(self, board, player):
-    #     board.compute_possible_moves(player)
-    #     max_score = -math.inf
-    #     move = None
-    #     for i in board.get_possible_moves():
-    #         copy_board = copy.deepcopy(board)
-    #         copy_board.set_pawns(1, i[0], i[1])
-    #         score = self.minimax(board, 0, 1 - player)
-    #         print(score)
-    #         if score > max_score:
-    #             max_score = score
-    #             move = (i[0], i[1])
-    #     # print(self.count)
-    #     return move
 
     def board_evaluation(self, board, is_maximizing):
         score = 0
