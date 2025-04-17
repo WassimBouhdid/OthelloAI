@@ -29,7 +29,7 @@ def draw_board(board, dimension, height, width, screen):
 if __name__ == '__main__':
 
     # initialising the parameters of the game board
-    DIMENSION = 4
+    DIMENSION = 8
     WIDTH = 600
     HEIGHT = 600
 
@@ -67,8 +67,8 @@ if __name__ == '__main__':
 
             boardgame.compute_possible_moves(player)
             if bool(player) and boardgame.get_possible_moves():
-                ai_move = minimax.minimax(-math.inf, math.inf, boardgame, 12, player)[0]
-                print(ai_move)
+                ai_move = minimax.minimax(-math.inf, math.inf, boardgame, 5, player)[0]
+
                 boardgame.set_pawns(player, ai_move[0], ai_move[1])
                 player = 1 - player
             elif bool(player):

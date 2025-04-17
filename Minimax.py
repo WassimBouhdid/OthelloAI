@@ -11,8 +11,6 @@ class MiniMax:
 
     def minimax(self, alpha, beta, board, depth, is_maximizing):
 
-        # print(self.count)
-        # self.count +=1
         board.compute_possible_moves(is_maximizing)
 
         if depth == 0:
@@ -32,7 +30,6 @@ class MiniMax:
                 copy_board = copy.deepcopy(board)
                 copy_board.set_pawns(is_maximizing, i[0], i[1])
                 score = self.minimax(alpha, beta, copy_board, depth - 1, 1 - is_maximizing)[1]
-                # best_score = max(best_score, score) if is_maximizing else min(best_score, score)
                 if is_maximizing:
                     if score > best_score:
                         best_score = score
