@@ -22,7 +22,8 @@ class MiniMax:
                 return None, -math.inf
 
         best_score = -math.inf if is_maximizing else math.inf
-        best_move = []
+        # best_move = []
+        best_move = None
 
         if board.get_possible_moves():
             for i in board.get_possible_moves():
