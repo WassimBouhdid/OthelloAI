@@ -40,9 +40,10 @@ if __name__ == '__main__':
     running = True
     player = 0
     boardgame = board.Board()
-    boardgame.compute_possible_moves(player)
+    # boardgame.compute_possible_moves(player)
     minimax = Minimax.MiniMax()
 
+    """
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -75,26 +76,98 @@ if __name__ == '__main__':
                 player = 1 - player
             elif not bool(player) and not boardgame.get_possible_moves():
                 player = 1 - player
+    """
 
-            if boardgame.is_game_finished(player):
-                print("END")
-                if boardgame.compute_winner() == 1:
-                    print("white team wins")
-                    print(boardgame.print_table())
-                elif boardgame.compute_winner() == 0:
-                    print("black team wins")
-                    print(boardgame.print_table())
+    while running:
+
+        if boardgame.is_game_finished(player):
+            print("END")
+            winner = boardgame.compute_winner()
+            if winner == 1:
+                print("white team wins")
+            elif winner == 0:
+                print("black team wins")
+            else:
+                print("MATCH NUL")
+            boardgame.print_table()
+            running = False
+
+            pygame.time.wait(3000)
+
+            continue
+
+        # moves possibles pour le joueur actuel
+        boardgame.compute_possible_moves(player)
+        current_possible_moves = boardgame.get_possible_moves()
+
+        # tour du joueur humain (le joueur 0)
+        if player == 0:
+            played_move = False
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                    break
+                if event.type == pygame.MOUSEBUTTONDOWN:
+
+                    if current_possible_moves:
+                        coord_x = int(event.pos[1] // (HEIGHT / DIMENSION))
+                        coord_y = int(event.pos[0] // (WIDTH / DIMENSION))
+
+                        if boardgame.is_valid_move(coord_x, coord_y):
+                            print(f"Player 0 played: ({coord_x}, {coord_y})") # pour voir dans la console
+                            boardgame.set_pawns(player, coord_x, coord_y)
+                            player = 1 - player  # au tour de l'IA
+                            played_move = True
+                            break
+                    else:
+                        print("Player 0 has no moves, click ignored.")
+
+            if not running: continue
+
+            # si aucun coup n'a été joué via clic et que le joueur n'avait pas de coups possibles
+            if not played_move and not current_possible_moves:
+                print(f"Player {player} has no possible moves. Passing turn.")
+                player = 1 - player  # passe son tour
+
+        # tour de l'ia (le joueur 1)
+        elif player == 1:
+            print(f"AI Turn - Possible Moves: {current_possible_moves}") # détaille les moves possible de l'ia dans la console
+            if current_possible_moves:
+
+                ai_move, score = minimax.minimax(-math.inf, math.inf, boardgame, 5, player)
+                print(f"AI Minimax returned: Move={ai_move}, Score={score}")  # affiche le move de l'ia et son score
+
+                # au cas où minimax ne retourne pas de coups mais qu'il y a au moins un coup à jouer
+                if ai_move is None and current_possible_moves:
+                    print("Minimax returned None, but moves exist. Forcing AI to play first possible move.")
+                    ai_move = list(current_possible_moves)[0]
+                    # ne met pas à jour le score ici, car il vient de l'évaluation Minimax qui a échoué à choisir
+
+                if ai_move is not None:
+                    try:
+                        print(f"AI playing move: {ai_move}")
+                        boardgame.set_pawns(player, ai_move[0], ai_move[1])
+                        player = 1 - player
+                    except Exception as e:
+                        print(f"!!! Error setting AI pawn: {e}. ai_move={ai_move}")
+                        running = False
                 else:
-                    print("MATCH NULLE")
-                    print(boardgame.print_table())
-                running = False
-                continue
+                    print("AI has no move (Minimax returned None and no possible moves found). Passing turn.")
+                    player = 1 - player
+            else:
+                # pas de coups possibles
+                print(f"Player {player} has no possible moves. Passing turn.")
+                player = 1 - player
 
         # colors the background in green
         screen.fill("green")
+        # screen.fill((0, 128, 0))
 
         draw_board(boardgame, DIMENSION, HEIGHT, WIDTH, screen)
 
         pygame.display.flip()
 
-        clock.tick(60)
+        clock.tick(30)
+
+    pygame.quit()
