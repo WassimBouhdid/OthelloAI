@@ -1,7 +1,9 @@
 import math
 import time
+from random import *
 import pygame
 import Minimax
+import MonteCarlo
 import board
 
 
@@ -35,60 +37,45 @@ if __name__ == '__main__':
 
     pygame.init()
     screen = pygame.display.set_mode((HEIGHT, WIDTH))
+    pygame.display.set_caption("Othello AI Project")
 
     clock = pygame.time.Clock()
     running = True
     player = 0
     boardgame = board.Board()
     # boardgame.compute_possible_moves(player)
-    minimax = Minimax.MiniMax()
 
-    """
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            if event.type == pygame.MOUSEBUTTONDOWN:  # Wait for a mouse click event
+    minimax_ai = Minimax.MiniMax()
+    mcts_ai = MonteCarlo.MonteCarlo(iteration_limit=1000)
 
-                # Get the coordinates of where the player has clicked
-                coord_x = int(pygame.mouse.get_pos()[1] // (WIDTH / DIMENSION))
-                coord_y = int(pygame.mouse.get_pos()[0] // (HEIGHT / DIMENSION))
+    # ai_player = minimax_ai
+    ai_player_algorithm = "mcts" # ou "minimax"
 
-                # If the coordinate is one of the valid move
-                # We put a pawn of the player's color on that coordinate
-                # and we change the color of the enemies pawn that are sandwiched between this pawn and other pawns
-                # of the player
-                if not player:
-                    print(boardgame.get_possible_moves())
-                    if boardgame.is_valid_move(coord_x, coord_y):
-                        boardgame.set_pawns(player, coord_x, coord_y)
-                        draw_board(boardgame, DIMENSION, HEIGHT, WIDTH, screen)
-                        player = 1 - player  # change the player's turn
-                    draw_board(boardgame, DIMENSION, HEIGHT, WIDTH, screen)
-
-            boardgame.compute_possible_moves(player)
-            if bool(player) and boardgame.get_possible_moves():
-                ai_move = minimax.minimax(-math.inf, math.inf, boardgame, 5, player)[0]
-
-                boardgame.set_pawns(player, ai_move[0], ai_move[1])
-                player = 1 - player
-            elif bool(player):
-                player = 1 - player
-            elif not bool(player) and not boardgame.get_possible_moves():
-                player = 1 - player
-    """
+    print(f"Using {ai_player_algorithm.upper()} AI for Player 1 (White)")
 
     while running:
 
         if boardgame.is_game_finished(player):
             print("END")
             winner = boardgame.compute_winner()
+
+            font = pygame.font.Font(None, 74)
+            text = ""
+
             if winner == 1:
+                text = font.render("White team Wins !", True, (255, 255, 255))
                 print("white team wins")
             elif winner == 0:
+                text = font.render("Black team Wins !", True, (0, 0, 0))
                 print("black team wins")
             else:
+                text = font.render("Draw !", True, (128, 128, 128))
                 print("MATCH NUL")
+
+            text_rect = text.get_rect(center=(WIDTH / 2, HEIGHT / 2))
+            screen.blit(text, text_rect)
+            pygame.display.flip()
+
             boardgame.print_table()
             running = False
 
@@ -135,29 +122,44 @@ if __name__ == '__main__':
             print(f"AI Turn - Possible Moves: {current_possible_moves}") # détaille les moves possible de l'ia dans la console
             if current_possible_moves:
 
-                ai_move, score = minimax.minimax(-math.inf, math.inf, boardgame, 5, player)
-                print(f"AI Minimax returned: Move={ai_move}, Score={score}")  # affiche le move de l'ia et son score
+                ai_move = None
+                start_ai_time = time.time()
 
-                # au cas où minimax ne retourne pas de coups mais qu'il y a au moins un coup à jouer
-                if ai_move is None and current_possible_moves:
-                    print("Minimax returned None, but moves exist. Forcing AI to play first possible move.")
-                    ai_move = list(current_possible_moves)[0]
-                    # ne met pas à jour le score ici, car il vient de l'évaluation Minimax qui a échoué à choisir
-
-                if ai_move is not None:
-                    try:
-                        print(f"AI playing move: {ai_move}")
-                        boardgame.set_pawns(player, ai_move[0], ai_move[1])
-                        player = 1 - player
-                    except Exception as e:
-                        print(f"!!! Error setting AI pawn: {e}. ai_move={ai_move}")
-                        running = False
+                if ai_player_algorithm == "minimax":
+                    ai_move, score = minimax_ai.minimax(-math.inf, math.inf, boardgame, 5, player)
+                    print(f"Minimax AI returned: Move={ai_move}, Score={score}")
+                elif ai_player_algorithm == "mcts":
+                    ai_move = mcts_ai.monte_carlo_tree_search(boardgame, player)
+                    print(f"MCTS AI returned: Move={ai_move}")
                 else:
-                    print("AI has no move (Minimax returned None and no possible moves found). Passing turn.")
+                    print("Error: Unknown AI algorithm specified!")
+                    ai_move = random.choice(list(current_possible_moves)) if current_possible_moves else None
+
+                end_ai_time = time.time()
+                print(f"AI calculation time: {end_ai_time - start_ai_time:.4f} seconds")
+
+                # au cas où l'ia ne retourne pas de coups mais qu'il y a au moins un coup à jouer
+                if ai_move is None and current_possible_moves:
+                    print(
+                        f"{ai_player_algorithm.upper()} returned None, but moves exist. Forcing AI to play first possible move.")
+                    ai_move = list(current_possible_moves)[0]
+                    # ne met pas à jour le score de Minimax ici, car il vient de l'évaluation qui a échoué à choisir
+
+                if ai_move is not None and boardgame.is_valid_move(ai_move[0], ai_move[1]):
+                    print(f"AI playing move: {ai_move}")
+                    boardgame.set_pawns(player, ai_move[0], ai_move[1])
+                    player = 1 - player
+                elif ai_move is not None:
+                    print(f"!!! Error: AI proposed an invalid move: {ai_move}. Available: {current_possible_moves}")
+                    ai_move = random.choice(list(current_possible_moves))
+                    print(f"AI playing random valid move instead: {ai_move}")
+                    boardgame.set_pawns(player, ai_move[0], ai_move[1])
+                    player = 1 - player
+                else:
+                    print("AI has no move (algorithm returned None and no fallback possible). Passing turn.")
                     player = 1 - player
             else:
-                # pas de coups possibles
-                print(f"Player {player} has no possible moves. Passing turn.")
+                print(f"Player {player} (AI) has no possible moves. Passing turn.")
                 player = 1 - player
 
         # colors the background in green
