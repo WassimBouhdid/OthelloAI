@@ -162,6 +162,18 @@ class Board:
     def get_no_moves_player1(self):
         return self.no_moves_player
 
+    def reset_board(self):
+        self.game_board= [
+            [None, None, None, None, None, None, None, None],
+            [None, None, None, None, None, None, None, None],
+            [None, None, None, None, None, None, None, None],
+            [None, None, None, 1, 0, None, None, None],
+            [None, None, None, 0, 1, None, None, None],
+            [None, None, None, None, None, None, None, None],
+            [None, None, None, None, None, None, None, None],
+            [None, None, None, None, None, None, None, None],
+        ]
+
     # Print the table board in console
     def print_table(self):
         for l in range(len(self.game_board[0])):

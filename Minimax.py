@@ -10,8 +10,7 @@ class MiniMax:
 
         score = 0
         board.compute_possible_moves(is_maximizing)
-        allmoves = board.get_possible_moves()
-        score += ((len(allmoves)) * 15) * (1 if is_maximizing else -1)
+
 
         if depth == 0:
             score += self.board_evaluation(board, is_maximizing)
@@ -55,6 +54,10 @@ class MiniMax:
     def board_evaluation(self, board, is_maximizing):
         score = 0
         nbrPons = 0
+
+        allmoves = board.get_possible_moves()
+        score += ((len(allmoves)) * 15) * (1 if is_maximizing else -1)
+
         for x in range(len(board.get_board())):
             for y in range(len(board.get_board()[0])):
                 if board.get_board()[x][y] == is_maximizing:
@@ -64,5 +67,6 @@ class MiniMax:
             score += nbrPons * 10
         else:
             score += nbrPons * -10
+
         return score
 
