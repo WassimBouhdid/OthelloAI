@@ -7,6 +7,7 @@ class MiniMax:
         self.count = 0
 
     def minimax(self, alpha, beta, board, depth, is_maximizing):
+
         score = 0
         board.compute_possible_moves(is_maximizing)
         allmoves = board.get_possible_moves()
@@ -25,12 +26,14 @@ class MiniMax:
         # best_move = []
         best_move = None
 
+
         if board.get_possible_moves():
             for i in board.get_possible_moves():
 
                 copy_board = copy.deepcopy(board)
                 copy_board.set_pawns(is_maximizing, i[0], i[1])
                 score = self.minimax(alpha, beta, copy_board, depth - 1, 1 - is_maximizing)[1]
+
                 if is_maximizing:
                     if score > best_score:
                         best_score = score
@@ -62,3 +65,4 @@ class MiniMax:
         else:
             score += nbrPons * -10
         return score
+

@@ -7,7 +7,6 @@ import Minimax
 import MonteCarlo
 import board
 
-
 def draw_board(board, dimension, height, width, screen):
     # Draws the black line in order to create all the squares of the board
     for i in range(1, dimension):
@@ -66,6 +65,7 @@ if __name__ == '__main__':
     print(f"Using {ai_player_algorithm.upper()} AI for Player 1 (White)")
 
     while running:
+
 
         if boardgame.is_game_finished(player):
             print("END")
