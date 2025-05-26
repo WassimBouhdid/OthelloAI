@@ -2,19 +2,19 @@ import copy
 import math
 import board
 
-DIMENSION = 4
-
-
 class MiniMax:
     def __init__(self):
         self.count = 0
 
     def minimax(self, alpha, beta, board, depth, is_maximizing):
-
+        score = 0
         board.compute_possible_moves(is_maximizing)
+        allmoves = board.get_possible_moves()
+        score += ((len(allmoves)) * 15) * (1 if is_maximizing else -1)
 
         if depth == 0:
-            return None, self.board_evaluation(board, is_maximizing)
+            score += self.board_evaluation(board, is_maximizing)
+            return None, score
         elif board.is_game_finished(is_maximizing):
             if board.compute_winner():
                 return None, math.inf
@@ -51,8 +51,14 @@ class MiniMax:
 
     def board_evaluation(self, board, is_maximizing):
         score = 0
+        nbrPons = 0
         for x in range(len(board.get_board())):
             for y in range(len(board.get_board()[0])):
                 if board.get_board()[x][y] == is_maximizing:
+                    nbrPons += 1
                     score += board.get_weighted_board()[x][y]
+        if is_maximizing:
+            score += nbrPons * 10
+        else:
+            score += nbrPons * -10
         return score

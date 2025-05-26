@@ -1,3 +1,4 @@
+import argparse
 import math
 import time
 from random import *
@@ -30,6 +31,14 @@ def draw_board(board, dimension, height, width, screen):
 
 if __name__ == '__main__':
 
+    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser.add_argument('AiAdversary',
+                        type=str,
+                        help='Choose adversary')
+
+
+    args = parser.parse_args()
+
     # initialising the parameters of the game board
     DIMENSION = 8
     WIDTH = 600
@@ -49,7 +58,10 @@ if __name__ == '__main__':
     mcts_ai = MonteCarlo.MonteCarlo(iteration_limit=1000)
 
     # ai_player = minimax_ai
-    ai_player_algorithm = "mcts" # ou "minimax"
+
+    print(args.AiAdversary)
+
+    ai_player_algorithm = args.AiAdversary # ou "minimax"
 
     print(f"Using {ai_player_algorithm.upper()} AI for Player 1 (White)")
 
