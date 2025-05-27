@@ -1,187 +1,320 @@
-import argparse
+import pygame
+import sys
 import math
 import time
-from random import *
-import pygame
+import random
+
+import board
 import Minimax
 import MonteCarlo
-import board
 
-def draw_board(board, dimension, height, width, screen):
-    # Draws the black line in order to create all the squares of the board
-    for i in range(1, dimension):
-        pygame.draw.line(screen, (0, 0, 0), [0, 0 + (height / dimension) * i],
-                         [width, 0 + (height / dimension) * i], 5)
-    for i in range(1, dimension):
-        pygame.draw.line(screen, (0, 0, 0), [0 + (height / dimension) * i, 0],
-                         [0 + (height / dimension) * i, width], 5)
+pygame.init()
 
-    # draw a black pawn where there is a 0 in the gameBoard
-    # draw a white pawn where there is a 1 in the gameBoard
-    for x in range(len(board.get_board())):
-        for y in range(len(board.get_board()[0])):
-            if board.get_board()[x][y] == 0:
-                pygame.draw.circle(screen, "black", [((width / dimension) / 2) + (width / dimension) * y,
-                                                     ((width / dimension) / 2) + (width / dimension) * x], 25)
-            elif board.get_board()[x][y] == 1:
-                pygame.draw.circle(screen, "white", [((width / dimension) / 2) + (width / dimension) * y,
-                                                     ((width / dimension) / 2) + (width / dimension) * x], 25)
+DIMENSION = 8
+WIDTH, HEIGHT = 640, 640
+SQUARE_SIZE = WIDTH // DIMENSION
+SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Othello")
 
+FONT_LARGE = pygame.font.Font(None, 100)
+FONT_MEDIUM = pygame.font.Font(None, 50)
+FONT_SMALL = pygame.font.Font(None, 36)
 
-if __name__ == '__main__':
+BG_COLOR = (0, 128, 0)  # Vert
+TEXT_COLOR = (255, 255, 255)  # Blanc
+BUTTON_COLOR = (70, 70, 70)
+BUTTON_HOVER_COLOR = (100, 100, 100)
 
-    parser = argparse.ArgumentParser(description='Process some integers.')
-    parser.add_argument('AiAdversary',
-                        type=str,
-                        help='Choose adversary')
+def draw_text(text, font, color, surface, x, y, center=True):
+    text_obj = font.render(text, True, color)
+    text_rect = text_obj.get_rect()
+    if center:
+        text_rect.center = (x, y)
+    else:
+        text_rect.topleft = (x, y)
+    surface.blit(text_obj, text_rect)
 
 
-    args = parser.parse_args()
+def draw_board(board_instance, screen):
+    screen.fill(BG_COLOR)
+    for i in range(1, DIMENSION):
+        pygame.draw.line(screen, (0, 0, 0), (0, i * SQUARE_SIZE), (WIDTH, i * SQUARE_SIZE), 5)
+        pygame.draw.line(screen, (0, 0, 0), (i * SQUARE_SIZE, 0), (i * SQUARE_SIZE, HEIGHT), 5)
 
-    # initialising the parameters of the game board
-    DIMENSION = 8
-    WIDTH = 600
-    HEIGHT = 600
-
-    pygame.init()
-    screen = pygame.display.set_mode((HEIGHT, WIDTH))
-    pygame.display.set_caption("Othello AI Project")
-
-    clock = pygame.time.Clock()
-    running = True
-    player = 0
-    boardgame = board.Board()
-    # boardgame.compute_possible_moves(player)
-
-    minimax_ai = Minimax.MiniMax()
-    mcts_ai = MonteCarlo.MonteCarlo(iteration_limit=1000)
-
-    # ai_player = minimax_ai
-
-    print(args.AiAdversary)
-
-    ai_player_algorithm = args.AiAdversary # ou "minimax"
-
-    print(f"Using {ai_player_algorithm.upper()} AI for Player 1 (White)")
-
-    while running:
+    for r in range(DIMENSION):
+        for c in range(DIMENSION):
+            pawn = board_instance.get_board()[r][c]
+            if pawn == 0:
+                pygame.draw.circle(screen, "black",
+                                   (c * SQUARE_SIZE + SQUARE_SIZE // 2, r * SQUARE_SIZE + SQUARE_SIZE // 2),
+                                   SQUARE_SIZE // 2 - 5)
+            elif pawn == 1:
+                pygame.draw.circle(screen, "white",
+                                   (c * SQUARE_SIZE + SQUARE_SIZE // 2, r * SQUARE_SIZE + SQUARE_SIZE // 2),
+                                   SQUARE_SIZE // 2 - 5)
 
 
-        if boardgame.is_game_finished(player):
-            print("END")
-            winner = boardgame.compute_winner()
 
-            font = pygame.font.Font(None, 74)
-            text = ""
+def show_splash_screen():
+    SCREEN.fill(BG_COLOR)
+    draw_text("Othello", FONT_LARGE, TEXT_COLOR, SCREEN, WIDTH // 2, HEIGHT // 5)
+    draw_text("Par: Wassim Bouhdid XXXXXXXXX, ", FONT_SMALL, TEXT_COLOR, SCREEN, WIDTH // 2, HEIGHT // 2.3)
+    draw_text("Leila Bourouf XXXXXXXXX, ", FONT_SMALL, TEXT_COLOR, SCREEN, WIDTH // 2, HEIGHT // 2)
+    draw_text("Maxime Van den Broeck 000461666", FONT_SMALL, TEXT_COLOR, SCREEN, WIDTH // 2, HEIGHT // 1.75)
+    draw_text("Click to start !", FONT_SMALL, TEXT_COLOR, SCREEN, WIDTH // 2, HEIGHT * 2.5 / 3)
+    pygame.display.flip()
 
-            if winner == 1:
-                text = font.render("White team Wins !", True, (255, 255, 255))
-                print("white team wins")
-            elif winner == 0:
-                text = font.render("Black team Wins !", True, (0, 0, 0))
-                print("black team wins")
-            else:
-                text = font.render("Draw !", True, (128, 128, 128))
-                print("MATCH NUL")
+    waiting = True
+    while waiting:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                waiting = False
 
-            text_rect = text.get_rect(center=(WIDTH / 2, HEIGHT / 2))
-            screen.blit(text, text_rect)
-            pygame.display.flip()
 
-            boardgame.print_table()
-            running = False
+def create_button(text, font, rect):
+    mouse_pos = pygame.mouse.get_pos()
+    is_hovered = rect.collidepoint(mouse_pos)
 
-            pygame.time.wait(3000)
+    color = BUTTON_HOVER_COLOR if is_hovered else BUTTON_COLOR
+    pygame.draw.rect(SCREEN, color, rect)
+    draw_text(text, font, TEXT_COLOR, SCREEN, rect.centerx, rect.centery)
 
-            continue
+    return is_hovered
 
-        # moves possibles pour le joueur actuel
-        boardgame.compute_possible_moves(player)
-        current_possible_moves = boardgame.get_possible_moves()
 
-        # tour du joueur humain (le joueur 0)
-        if player == 0:
-            played_move = False
+def main_menu():
+    button_hvh = pygame.Rect(WIDTH // 2 - 150, HEIGHT // 2 - 100, 300, 60)
+    button_hva = pygame.Rect(WIDTH // 2 - 150, HEIGHT // 2, 300, 60)
+    button_ava = pygame.Rect(WIDTH // 2 - 150, HEIGHT // 2 + 100, 300, 60)
 
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
-                    break
-                if event.type == pygame.MOUSEBUTTONDOWN:
+    while True:
+        SCREEN.fill(BG_COLOR)
+        draw_text("Main menu", FONT_LARGE, TEXT_COLOR, SCREEN, WIDTH // 2, HEIGHT // 4)
 
-                    if current_possible_moves:
-                        coord_x = int(event.pos[1] // (HEIGHT / DIMENSION))
-                        coord_y = int(event.pos[0] // (WIDTH / DIMENSION))
-
-                        if boardgame.is_valid_move(coord_x, coord_y):
-                            print(f"Player 0 played: ({coord_x}, {coord_y})") # pour voir dans la console
-                            boardgame.set_pawns(player, coord_x, coord_y)
-                            player = 1 - player  # au tour de l'IA
-                            played_move = True
-                            break
-                    else:
-                        print("Player 0 has no moves, click ignored.")
-
-            if not running: continue
-
-            # si aucun coup n'a été joué via clic et que le joueur n'avait pas de coups possibles
-            if not played_move and not current_possible_moves:
-                print(f"Player {player} has no possible moves. Passing turn.")
-                player = 1 - player  # passe son tour
-
-        # tour de l'ia (le joueur 1)
-        elif player == 1:
-            print(f"AI Turn - Possible Moves: {current_possible_moves}") # détaille les moves possible de l'ia dans la console
-            if current_possible_moves:
-
-                ai_move = None
-                start_ai_time = time.time()
-
-                if ai_player_algorithm == "minimax":
-                    ai_move, score = minimax_ai.minimax(-math.inf, math.inf, boardgame, 5, player)
-                    print(f"Minimax AI returned: Move={ai_move}, Score={score}")
-                elif ai_player_algorithm == "mcts":
-                    ai_move = mcts_ai.monte_carlo_tree_search(boardgame, player)
-                    print(f"MCTS AI returned: Move={ai_move}")
-                else:
-                    print("Error: Unknown AI algorithm specified!")
-                    ai_move = random.choice(list(current_possible_moves)) if current_possible_moves else None
-
-                end_ai_time = time.time()
-                print(f"AI calculation time: {end_ai_time - start_ai_time:.4f} seconds")
-
-                # au cas où l'ia ne retourne pas de coups mais qu'il y a au moins un coup à jouer
-                if ai_move is None and current_possible_moves:
-                    print(
-                        f"{ai_player_algorithm.upper()} returned None, but moves exist. Forcing AI to play first possible move.")
-                    ai_move = list(current_possible_moves)[0]
-                    # ne met pas à jour le score de Minimax ici, car il vient de l'évaluation qui a échoué à choisir
-
-                if ai_move is not None and boardgame.is_valid_move(ai_move[0], ai_move[1]):
-                    print(f"AI playing move: {ai_move}")
-                    boardgame.set_pawns(player, ai_move[0], ai_move[1])
-                    player = 1 - player
-                elif ai_move is not None:
-                    print(f"!!! Error: AI proposed an invalid move: {ai_move}. Available: {current_possible_moves}")
-                    ai_move = random.choice(list(current_possible_moves))
-                    print(f"AI playing random valid move instead: {ai_move}")
-                    boardgame.set_pawns(player, ai_move[0], ai_move[1])
-                    player = 1 - player
-                else:
-                    print("AI has no move (algorithm returned None and no fallback possible). Passing turn.")
-                    player = 1 - player
-            else:
-                print(f"Player {player} (AI) has no possible moves. Passing turn.")
-                player = 1 - player
-
-        # colors the background in green
-        screen.fill("green")
-        # screen.fill((0, 128, 0))
-
-        draw_board(boardgame, DIMENSION, HEIGHT, WIDTH, screen)
+        hvh_hovered = create_button("Human vs Human", FONT_MEDIUM, button_hvh)
+        hva_hovered = create_button("Human vs IA", FONT_MEDIUM, button_hva)
+        ava_hovered = create_button("IA vs IA", FONT_MEDIUM, button_ava)
 
         pygame.display.flip()
 
-        clock.tick(30)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if hvh_hovered:
+                    return "hvh"
+                if hva_hovered:
+                    return "hva"
+                if ava_hovered:
+                    return "ava"
 
-    pygame.quit()
+
+def select_ai_menu(title="Choose an AI"):
+    button_minimax = pygame.Rect(WIDTH // 2 - 150, HEIGHT // 2 - 50, 300, 60)
+    button_mcts = pygame.Rect(WIDTH // 2 - 150, HEIGHT // 2 + 50, 300, 60)
+
+    while True:
+        SCREEN.fill(BG_COLOR)
+        draw_text(title, FONT_MEDIUM, TEXT_COLOR, SCREEN, WIDTH // 2, HEIGHT // 4)
+
+        minimax_hovered = create_button("Minimax", FONT_MEDIUM, button_minimax)
+        mcts_hovered = create_button("Monte-Carlo", FONT_MEDIUM, button_mcts)
+
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if minimax_hovered:
+                    return "minimax"
+                if mcts_hovered:
+                    return "mcts"
+
+
+def get_num_matches_screen():
+    input_box = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2, 200, 50)
+    user_text = ''
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RETURN:
+                    if user_text.isdigit() and int(user_text) > 0:
+                        return int(user_text)
+                elif event.key == pygame.K_BACKSPACE:
+                    user_text = user_text[:-1]
+                elif event.unicode.isdigit():
+                    user_text += event.unicode
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if not input_box.collidepoint(event.pos):
+                    return None  # Retourne au menu si on clique ailleurs
+
+        SCREEN.fill(BG_COLOR)
+        draw_text("Number of games ?", FONT_MEDIUM, TEXT_COLOR, SCREEN, WIDTH // 2, HEIGHT // 2 - 100)
+
+        pygame.draw.rect(SCREEN, TEXT_COLOR, input_box, 2)
+        draw_text(user_text, FONT_MEDIUM, TEXT_COLOR, SCREEN, input_box.centerx, input_box.centery)
+
+        pygame.display.flip()
+
+
+def game_loop(game_mode, ai_type=None):
+    board_game = board.Board()
+    player = 0  # Noir commence
+    ai_player = None
+    ai_instance = None
+
+    if game_mode == 'hva':
+        ai_player = 1  # L'IA joue en tant que joueur blanc
+        if ai_type == "minimax":
+            ai_instance = Minimax.MiniMax()
+        elif ai_type == "mcts":
+            ai_instance = MonteCarlo.MonteCarlo(time_limit=3)
+
+    running = True
+    while running:
+        if board_game.is_game_finished(player):
+            running = False
+            break
+
+        board_game.compute_possible_moves(player)
+        current_possible_moves = board_game.get_possible_moves()
+
+        is_ai_turn = (game_mode == 'hva' and player == ai_player)
+
+        if is_ai_turn:
+            if current_possible_moves:
+                draw_text(f"L'IA ({ai_type}) réfléchit...", FONT_MEDIUM, TEXT_COLOR, SCREEN, WIDTH // 2, 20)
+                pygame.display.flip()
+                if ai_type == "minimax":
+                    ai_move, _ = ai_instance.minimax(-math.inf, math.inf, board_game, 3, True)
+                else:
+                    ai_move = ai_instance.monte_carlo_tree_search(board_game, player)
+
+                if ai_move and board_game.is_valid_move(ai_move[0], ai_move[1]):
+                    board_game.set_pawns(player, ai_move[0], ai_move[1])
+                    player = 1 - player
+                else:
+                    player = 1 - player  # Passe son tour
+            else:
+                player = 1 - player  # Passe son tour si aucun mouvement possible
+        else:  # Tour du joueur humain
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    return  # Retour au menu principal
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if current_possible_moves:
+                        pos_x, pos_y = event.pos
+                        col = pos_x // SQUARE_SIZE
+                        row = pos_y // SQUARE_SIZE
+                        if (row, col) in current_possible_moves:
+                            board_game.set_pawns(player, row, col)
+                            player = 1 - player
+                    else:  # Si pas de coup possible, le joueur doit quand même cliquer pour passer son tour
+                        player = 1 - player
+
+        draw_board(board_game, SCREEN)
+        pygame.display.flip()
+
+    winner = board_game.compute_winner()
+    winner_text = f"The {'White' if winner == 1 else 'Black'} player won !" if winner != 2 else "Draw !"
+    draw_text(winner_text, FONT_MEDIUM, (255, 200, 0), SCREEN, WIDTH // 2, HEIGHT // 2)
+    pygame.display.flip()
+    time.sleep(4)
+
+
+def ai_vs_ai_simulation(num_matches, first_ai_type):
+    ai1_name = "Minimax" if first_ai_type == "minimax" else "Monte-Carlo"
+    ai2_name = "Monte-Carlo" if first_ai_type == "minimax" else "Minimax"
+
+    if first_ai_type == "minimax":
+        ai1 = Minimax.MiniMax()
+        ai2 = MonteCarlo.MonteCarlo(time_limit=0.5)
+    else:
+        ai1 = MonteCarlo.MonteCarlo(time_limit=0.5)
+        ai2 = Minimax.MiniMax()
+
+    ai1_wins = 0
+
+    for i in range(num_matches):
+        SCREEN.fill(BG_COLOR)
+        draw_text("Simulation in progress...", FONT_MEDIUM, TEXT_COLOR, SCREEN, WIDTH // 2, HEIGHT // 2 - 50)
+        draw_text(f"Partie {i + 1} / {num_matches}", FONT_SMALL, TEXT_COLOR, SCREEN, WIDTH // 2, HEIGHT // 2 + 20)
+        pygame.display.flip()
+
+        sim_board = board.Board()
+        current_player = 0
+
+        while not sim_board.is_game_finished(current_player):
+            sim_board.compute_possible_moves(current_player)
+            if not sim_board.get_possible_moves():
+                current_player = 1 - current_player
+                continue
+
+            move = None
+            if current_player == 0:  # Tour de l'IA n°1
+                if first_ai_type == "minimax":
+                    move, _ = ai1.minimax(-math.inf, math.inf, sim_board, 3, True)
+                else:
+                    move = ai1.monte_carlo_tree_search(sim_board, current_player)
+            else:  # Tour de l'IA n°2
+                if first_ai_type == "minimax":
+                    move = ai2.monte_carlo_tree_search(sim_board, current_player)
+                else:
+                    move, _ = ai2.minimax(-math.inf, math.inf, sim_board, 3, False)
+
+            if move:
+                sim_board.set_pawns(current_player, move[0], move[1])
+
+            current_player = 1 - current_player
+
+        winner = sim_board.compute_winner()
+        if winner == 0:  # L'IA n°1 (Noir) a gagné
+            ai1_wins += 1
+
+    win_percentage = (ai1_wins / num_matches) * 100
+
+    SCREEN.fill(BG_COLOR)
+    draw_text("Simulation Completed", FONT_MEDIUM, TEXT_COLOR, SCREEN, WIDTH // 2, HEIGHT // 3)
+    result_text = f"Victories {ai1_name} (IA 1): {win_percentage:.2f}%"
+    draw_text(result_text, FONT_MEDIUM, TEXT_COLOR, SCREEN, WIDTH // 2, HEIGHT // 2)
+    draw_text("Click to return to the main menu", FONT_SMALL, TEXT_COLOR, SCREEN, WIDTH // 2, HEIGHT * 2 / 3)
+    pygame.display.flip()
+
+    waiting = True
+    while waiting:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                waiting = False
+
+def main():
+    show_splash_screen()
+    while True:
+        choice = main_menu()
+        if choice == "hvh":
+            game_loop("hvh")
+        elif choice == "hva":
+            ai_choice = select_ai_menu("Choose which AI to challenge")
+            game_loop("hva", ai_type=ai_choice)
+        elif choice == "ava":
+            num_matches = get_num_matches_screen()
+            if num_matches:
+                first_ai = select_ai_menu("Who is AI n°1 (Black) ?")
+                if first_ai:
+                    ai_vs_ai_simulation(num_matches, first_ai)
+
+
+if __name__ == "__main__":
+    main()
