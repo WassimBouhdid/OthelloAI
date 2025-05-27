@@ -59,7 +59,7 @@ def show_splash_screen():
     SCREEN.fill(BG_COLOR)
     draw_text("Othello", FONT_LARGE, TEXT_COLOR, SCREEN, WIDTH // 2, HEIGHT // 5)
     draw_text("Par: Wassim Bouhdid XXXXXXXXX, ", FONT_SMALL, TEXT_COLOR, SCREEN, WIDTH // 2, HEIGHT // 2.3)
-    draw_text("Leila Bourouf XXXXXXXXX, ", FONT_SMALL, TEXT_COLOR, SCREEN, WIDTH // 2, HEIGHT // 2)
+    draw_text("Leila Bourouf 000592462, ", FONT_SMALL, TEXT_COLOR, SCREEN, WIDTH // 2, HEIGHT // 2)
     draw_text("Maxime Van den Broeck 000461666", FONT_SMALL, TEXT_COLOR, SCREEN, WIDTH // 2, HEIGHT // 1.75)
     draw_text("Click to start !", FONT_SMALL, TEXT_COLOR, SCREEN, WIDTH // 2, HEIGHT * 2.5 / 3)
     pygame.display.flip()
