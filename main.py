@@ -3,21 +3,11 @@ import sys
 import math
 import time
 
-
 import board
 import Minimax
 import MonteCarlo
 
-
-
-
-
 pygame.init()
-
- 
-
- 
-
 
 DIMENSION = 8
 WIDTH, HEIGHT = 640, 640
@@ -33,6 +23,7 @@ BG_COLOR = (75, 53, 42)
 TEXT_COLOR = (255, 255, 255)  # Blanc
 BUTTON_COLOR = (70, 70, 70)
 BUTTON_HOVER_COLOR = (100, 100, 100)
+
 
 def draw_text(text, font, color, surface, x, y, center=True):
     text_obj = font.render(text, True, color)
@@ -61,7 +52,6 @@ def draw_board(board_instance, screen):
                 pygame.draw.circle(screen, "white",
                                    (c * SQUARE_SIZE + SQUARE_SIZE // 2, r * SQUARE_SIZE + SQUARE_SIZE // 2),
                                    SQUARE_SIZE // 2 - 5)
-                
 
 
 def draw_return_button():
@@ -76,7 +66,6 @@ def draw_return_button():
     return is_hovered
 
 
-
 def show_splash_screen():
     waiting = True
 
@@ -85,7 +74,6 @@ def show_splash_screen():
     FONT_SUBTITLE = pygame.font.SysFont("consolas", 20)
     FONT_CREDITS = pygame.font.SysFont("consolas", 20)
     FONT_BUTTON = pygame.font.Font("fonts/pixel.otf", 32)
-
 
     # Button colors
     BUTTON_COLOR = (178, 205, 156)
@@ -131,9 +119,6 @@ def show_splash_screen():
                 waiting = False
 
 
-
-
-
 def create_button(text, rect):
     # Local styling (same as "Click to start!" button)
     font = pygame.font.Font("fonts/pixel.otf", 32)  # Replace with your .otf filename
@@ -155,7 +140,6 @@ def create_button(text, rect):
     SCREEN.blit(text_surface, text_rect)
 
     return is_hovered
-
 
 
 def main_menu():
@@ -190,7 +174,6 @@ def main_menu():
                     return "ava"
 
 
-
 def select_ai_menu(title="Choose an AI"):
     button_minimax = pygame.Rect(WIDTH // 2 - 150, HEIGHT // 2 - 50, 300, 60)
     button_mcts = pygame.Rect(WIDTH // 2 - 150, HEIGHT // 2 + 50, 300, 60)
@@ -200,8 +183,8 @@ def select_ai_menu(title="Choose an AI"):
         SCREEN.fill(BG_COLOR)
         draw_text(title, FONT_TITLE, TEXT_COLOR, SCREEN, WIDTH // 2, HEIGHT // 4)
 
-        minimax_hovered = create_button("Minimax",  button_minimax)
-        mcts_hovered = create_button("Monte-Carlo",  button_mcts)
+        minimax_hovered = create_button("Minimax", button_minimax)
+        mcts_hovered = create_button("Monte-Carlo", button_mcts)
         return_hovered = draw_return_button()
 
         pygame.display.flip()
@@ -219,11 +202,10 @@ def select_ai_menu(title="Choose an AI"):
                     return "mcts"
 
 
-
 def get_num_matches_screen():
     input_box = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2, 200, 50)
     user_text = ''
-    
+
     FONT_TITLE = pygame.font.Font("fonts/block.otf", 50)
 
     while True:
@@ -253,14 +235,14 @@ def get_num_matches_screen():
         pygame.display.flip()
 
 
-
 def game_loop(game_mode, ai_type=None):
     board_game = board.Board()
     player = 0  # Noir commence
     ai_player = None
     ai_instance = None
-    
-    FONT_TITLE = pygame.font.Font("fonts/block.otf", 30) 
+    score = 0
+
+    FONT_TITLE = pygame.font.Font("fonts/block.otf", 30)
 
     if game_mode == 'hva':
         ai_player = 1  # L'IA joue en tant que joueur blanc
@@ -285,7 +267,7 @@ def game_loop(game_mode, ai_type=None):
                 draw_text(f"L'IA ({ai_type}) réfléchit...", FONT_TITLE, TEXT_COLOR, SCREEN, WIDTH // 2, 20)
                 pygame.display.flip()
                 if ai_type == "minimax":
-                    ai_move, _ = ai_instance.minimax(-math.inf, math.inf, board_game, 3, True)
+                    ai_move, score = ai_instance.minimax(-math.inf, math.inf, board_game, 6, True, 1)
                 else:
                     ai_move = ai_instance.monte_carlo_tree_search(board_game, player)
 
@@ -302,9 +284,11 @@ def game_loop(game_mode, ai_type=None):
                     return  # Retour au menu principal
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if current_possible_moves:
+                        print(current_possible_moves)
                         pos_x, pos_y = event.pos
                         col = pos_x // SQUARE_SIZE
                         row = pos_y // SQUARE_SIZE
+                        print((row, col))
                         if (row, col) in current_possible_moves:
                             board_game.set_pawns(player, row, col)
                             player = 1 - player
@@ -353,9 +337,13 @@ def ai_vs_ai_simulation(num_matches, first_ai_type):
 
             move = None
             if current_player == 0:
-                move = ai1.minimax(-math.inf, math.inf, sim_board, 3, True)[0] if first_ai_type == "minimax" else ai1.monte_carlo_tree_search(sim_board, current_player)
+                if first_ai_type == "minimax":
+                    move = ai1.minimax(-math.inf, math.inf, sim_board, 3, True, 0)[0]
+                else:
+                    move = ai1.monte_carlo_tree_search(sim_board, current_player)
             else:
-                move = ai2.monte_carlo_tree_search(sim_board, current_player) if first_ai_type == "minimax" else ai2.minimax(-math.inf, math.inf, sim_board, 3, False)[0]
+                move = ai2.monte_carlo_tree_search(sim_board, current_player) if first_ai_type == "minimax" else \
+                    ai2.minimax(-math.inf, math.inf, sim_board, 3, True, 1)[0]
 
             if move:
                 sim_board.set_pawns(current_player, move[0], move[1])
@@ -368,7 +356,6 @@ def ai_vs_ai_simulation(num_matches, first_ai_type):
     draw_text("Simulation Completed", FONT_TITLE, TEXT_COLOR, SCREEN, WIDTH // 2, HEIGHT // 3)
     result_text = f"Victories {ai1_name} (IA 1): {(ai1_wins / num_matches) * 100:.2f}%"
     draw_text(result_text, FONT_TITLE, TEXT_COLOR, SCREEN, WIDTH // 2, HEIGHT // 2)
-
 
     draw_return_button()
     pygame.display.flip()
@@ -403,7 +390,6 @@ def main():
                     first_ai = select_ai_menu("Who is AI n1 (Black) ?")
                     if first_ai:
                         ai_vs_ai_simulation(num_matches, first_ai)
-
 
 
 if __name__ == "__main__":

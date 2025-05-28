@@ -168,4 +168,3 @@ class Board:
             for c in range(len(self.game_board)):
                 print("-" if self.game_board[c][l] is None else self.game_board[c][l], end="")
             print()
-
