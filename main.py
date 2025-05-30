@@ -379,7 +379,6 @@ def ai_vs_ai_simulation(num_matches, first_ai_type):
             if event.type == pygame.MOUSEBUTTONDOWN and draw_return_button():
                 return
         pygame.display.flip()
-        print("test")
 
 
 def main():
