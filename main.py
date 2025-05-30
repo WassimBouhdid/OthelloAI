@@ -264,12 +264,12 @@ def game_loop(game_mode, ai_type=None):
 
         if is_ai_turn:
             if current_possible_moves:
-                draw_text(f"L'IA ({ai_type}) réfléchit...", FONT_TITLE, TEXT_COLOR, SCREEN, WIDTH // 2, 20)
+                draw_text(f"L'IA ({ai_type}) reflechit...", FONT_TITLE, TEXT_COLOR, SCREEN, WIDTH // 2, 20)
                 pygame.display.flip()
                 if ai_type == "minimax":
                     ai_move, score = ai_instance.minimax(-math.inf, math.inf, board_game, 6, True, 1, pygame)
                 else:
-                    ai_move = ai_instance.monte_carlo_tree_search(board_game, player)
+                    ai_move = ai_instance.monte_carlo_tree_search(board_game, player, pygame)
 
                 if ai_move and board_game.is_valid_move(ai_move[0], ai_move[1]):
                     board_game.set_pawns(player, ai_move[0], ai_move[1])
