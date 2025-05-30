@@ -90,7 +90,7 @@ def show_splash_screen():
         draw_text("Developed by:", FONT_SUBTITLE, TEXT_COLOR, SCREEN, WIDTH // 2, HEIGHT // 2.5)
 
         # Contributors in code font
-        draw_text("Wassim Bouhdid (XXXXXXXX)", FONT_CREDITS, TEXT_COLOR, SCREEN, WIDTH // 2, HEIGHT // 2.2)
+        draw_text("Wassim Bouhdid (000596875)", FONT_CREDITS, TEXT_COLOR, SCREEN, WIDTH // 2, HEIGHT // 2.2)
         draw_text("Leila Bourouf (000592462)", FONT_CREDITS, TEXT_COLOR, SCREEN, WIDTH // 2, HEIGHT // 2.0)
         draw_text("Maxime Van den Broeck (000461666)", FONT_CREDITS, TEXT_COLOR, SCREEN, WIDTH // 2, HEIGHT // 1.85)
 
@@ -267,7 +267,7 @@ def game_loop(game_mode, ai_type=None):
                 draw_text(f"L'IA ({ai_type}) réfléchit...", FONT_TITLE, TEXT_COLOR, SCREEN, WIDTH // 2, 20)
                 pygame.display.flip()
                 if ai_type == "minimax":
-                    ai_move, score = ai_instance.minimax(-math.inf, math.inf, board_game, 6, True, 1)
+                    ai_move, score = ai_instance.minimax(-math.inf, math.inf, board_game, 6, True, 1, pygame)
                 else:
                     ai_move = ai_instance.monte_carlo_tree_search(board_game, player)
 
@@ -321,15 +321,20 @@ def ai_vs_ai_simulation(num_matches, first_ai_type):
     ai1_wins = 0
 
     for i in range(num_matches):
+        pygame.event.pump()
+        pygame.display.flip()
         SCREEN.fill(BG_COLOR)
         draw_text("Simulation in progress...", FONT_TITLE, TEXT_COLOR, SCREEN, WIDTH // 2, HEIGHT // 2 - 50)
         draw_text(f"Partie {i + 1} / {num_matches}", FONT_TITLE, TEXT_COLOR, SCREEN, WIDTH // 2, HEIGHT // 2 + 20)
+        pygame.event.pump()
         pygame.display.flip()
 
         sim_board = board.Board()
         current_player = 0
 
         while not sim_board.is_game_finished(current_player):
+            pygame.event.pump()
+            pygame.display.flip()
             sim_board.compute_possible_moves(current_player)
             if not sim_board.get_possible_moves():
                 current_player = 1 - current_player
@@ -338,19 +343,24 @@ def ai_vs_ai_simulation(num_matches, first_ai_type):
             move = None
             if current_player == 0:
                 if first_ai_type == "minimax":
-                    move = ai1.minimax(-math.inf, math.inf, sim_board, 3, True, 0)[0]
+                    move = ai1.minimax(-math.inf, math.inf, sim_board, 3, True, 0, pygame)[0]
                 else:
-                    move = ai1.monte_carlo_tree_search(sim_board, current_player)
+                    move = ai1.monte_carlo_tree_search(sim_board, current_player, pygame)
             else:
-                move = ai2.monte_carlo_tree_search(sim_board, current_player) if first_ai_type == "minimax" else \
-                    ai2.minimax(-math.inf, math.inf, sim_board, 3, True, 1)[0]
+
+                if first_ai_type == "minimax":
+                    move = ai2.monte_carlo_tree_search(sim_board, current_player, pygame)
+                else:
+                    move = ai2.minimax(-math.inf, math.inf, sim_board, 3, True, 1, pygame)[0]
 
             if move:
                 sim_board.set_pawns(current_player, move[0], move[1])
             current_player = 1 - current_player
-
         if sim_board.compute_winner() == 0:
             ai1_wins += 1
+
+    pygame.event.pump()
+    pygame.display.flip()
 
     SCREEN.fill(BG_COLOR)
     draw_text("Simulation Completed", FONT_TITLE, TEXT_COLOR, SCREEN, WIDTH // 2, HEIGHT // 3)
@@ -368,6 +378,8 @@ def ai_vs_ai_simulation(num_matches, first_ai_type):
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN and draw_return_button():
                 return
+        pygame.display.flip()
+        print("test")
 
 
 def main():

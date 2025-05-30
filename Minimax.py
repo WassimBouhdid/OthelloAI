@@ -7,13 +7,13 @@ class MiniMax:
     def __init__(self):
         self.count = 0
 
-    def minimax(self, alpha, beta, board, depth, is_maximizing, player):
+    def minimax(self, alpha, beta, board, depth, is_maximizing, player, pygame):
 
+        pygame.event.pump()
         score = 0
         board.compute_possible_moves(player)
         allmoves = board.get_possible_moves()
         score += ((len(allmoves)) * 15) * (1 if is_maximizing else -1)
-
         if depth == 0:
             score += self.board_evaluation(board, is_maximizing, player)
             return None, score
@@ -32,15 +32,16 @@ class MiniMax:
 
                 copy_board = copy.deepcopy(board)
                 copy_board.set_pawns(player, i[0], i[1])
-                score = self.minimax(alpha, beta, copy_board, depth - 1, not is_maximizing, 1 - player)[1]
+                score = self.minimax(alpha, beta, copy_board, depth - 1, not is_maximizing, 1 - player, pygame)[1]
 
                 if is_maximizing:
-                    if score > best_score:
+                    if score >= best_score:
                         best_score = score
                         best_move = i
                     alpha = max(alpha, best_score)
+
                 else:
-                    if score < best_score:
+                    if score <= best_score:
                         best_score = score
                         best_move = i
                     beta = min(beta, best_score)

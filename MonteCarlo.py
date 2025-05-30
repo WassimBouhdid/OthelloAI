@@ -52,13 +52,14 @@ class MonteCarlo:
         self.iteration_limit = iteration_limit
         self.time_limit = time_limit
 
-    def monte_carlo_tree_search(self, initial_board_state, current_player):
+    def monte_carlo_tree_search(self, initial_board_state, current_player, pygame):
         root_node = MonteCarloNode(board_state=copy.deepcopy(initial_board_state), player=current_player)
 
         start_time = time.time()
         iterations = 0
 
         while True:
+            pygame.event.pump()
             iterations += 1
             if self.iteration_limit is not None and iterations > self.iteration_limit:
                 break
@@ -118,6 +119,8 @@ class MonteCarlo:
 
                 node.update(result_for_node)
                 node = node.parent
+
+
 
         if not root_node.children:
             initial_board_state.compute_possible_moves(current_player)
